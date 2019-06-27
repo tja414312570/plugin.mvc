@@ -128,22 +128,14 @@ public class CoreDispatcher extends HttpServlet{
         // This method must construct a complete context rooted path, although
         // subclasses can change this behaviour.
 
-        String servletPath;
         String pathInfo;
-
         if (request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null) {
             // For includes, get the info from the attributes
             pathInfo = (String) request.getAttribute(RequestDispatcher.INCLUDE_PATH_INFO);
-            servletPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
         } else {
             pathInfo = request.getPathInfo();
-            servletPath = request.getServletPath();
         }
-
         StringBuilder result = new StringBuilder();
-        if (servletPath.length() > 0) {
-            result.append(servletPath);
-        }
         if (pathInfo != null) {
             result.append(pathInfo);
         }

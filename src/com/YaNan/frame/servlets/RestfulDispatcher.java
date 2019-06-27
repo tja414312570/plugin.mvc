@@ -183,21 +183,14 @@ public class RestfulDispatcher extends HttpServlet
 	protected String getRelativePath(HttpServletRequest request) {
 		return getRelativePath(request, false);
 	}
-
 	protected String getRelativePath(HttpServletRequest request, boolean allowEmptyPath) {
-		String servletPath;
 		String pathInfo;
 		if (request.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI) != null) {
 			pathInfo = (String) request.getAttribute(RequestDispatcher.INCLUDE_PATH_INFO);
-			servletPath = (String) request.getAttribute(RequestDispatcher.INCLUDE_SERVLET_PATH);
 		} else {
 			pathInfo = request.getPathInfo();
-			servletPath = request.getServletPath();
 		}
 		StringBuilder result = new StringBuilder();
-		if (servletPath.length() > 0) {
-			result.append(servletPath);
-		}
 		if (pathInfo != null) {
 			result.append(pathInfo);
 		}
@@ -306,7 +299,7 @@ public class RestfulDispatcher extends HttpServlet
 	}
 
 	public String getUrlMapping(HttpServletRequest request) throws ServletException {
-		String urlMapping = URLSupport.getRelativePath(request);
+		String urlMapping = getRelativePath(request);
 		String method = request.getMethod();
 		if (method.equals("GET")) {
 			urlMapping = this.buildUrl(urlMapping, REQUEST_METHOD.GET);
