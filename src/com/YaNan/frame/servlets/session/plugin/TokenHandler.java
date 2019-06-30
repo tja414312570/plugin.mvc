@@ -28,9 +28,9 @@ public class TokenHandler implements InvokeHandler,FieldHandler,InstanceHandler 
 			auth = ClassHelper.getClassHelper(plugClass).getAnnotation(Authentication.class);
 		Token token = Token.getToken();
 		if(token == null)
-			throw new RuntimeException("Class "+plugClass +" instance need provide token");
+			throw new PermissionAuthException("Class "+plugClass +" instance need provide token");
 		if(!token.containerRole(auth.roles()))
-			throw new RuntimeException("No permission to instantiate the current class");
+			throw new PermissionAuthException("No permission to instantiate the current class");
 	}
 
 	@Override
@@ -57,9 +57,9 @@ public class TokenHandler implements InvokeHandler,FieldHandler,InstanceHandler 
 			auth = ClassHelper.getClassHelper(methodHandler.getPlugsProxy().getProxyClass()).getAnnotation(Authentication.class);
 		Token token = Token.getToken();
 		if(token == null)
-			throw new RuntimeException("Method "+methodHandler.getMethod()+" invoke need provide token");
+			throw new PermissionAuthException("Method "+methodHandler.getMethod()+" invoke need provide token");
 		if(!token.containerRole(auth.roles()))
-			throw new RuntimeException("No permission to invoke method:"+methodHandler.getMethod());
+			throw new PermissionAuthException("No permission to invoke method:"+methodHandler.getMethod());
 	}
 
 	@Override

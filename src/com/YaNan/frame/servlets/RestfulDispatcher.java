@@ -79,7 +79,7 @@ public class RestfulDispatcher extends HttpServlet
 		ServletBean servletBean = getServletBean(request);
 		// 判断ServletBean是否存在
 		if (servletBean == null) {
-			log.warn("servlet handle not found! url mapping :" + getUrlMapping(request));
+			log.warn("servlet handle not found! url mapping :" + REQUEST_METHOD.getRequest(getUrlMapping(request)));
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -108,7 +108,7 @@ public class RestfulDispatcher extends HttpServlet
 				} catch (Throwable e) {
 					throw new ServletRuntimeException(
 							"failed to invoke servlet bean !\r\n at class : " + servletBean.getServletClass().getName()
-									+ "\r\n at method : " + servletBean.getMethod() + "\r\n" + parameters,
+									+ "\r\n at method : " + servletBean.getMethod() + "\r\n paramters : " + parameters,
 							e);
 				}
 				// 执行完之后，判断是否已将response提交，如果为提交，则判断返回结果
@@ -158,16 +158,14 @@ public class RestfulDispatcher extends HttpServlet
 			ServletExceptionHandler servletExceptionHandler = PlugsFactory
 					.getPlugsInstance(ServletExceptionHandler.class);
 			if (servletExceptionHandler != null)
-				servletExceptionHandler.exception(e, request, response);
-				log.error(e.getMessage(),e);
+				servletExceptionHandler.exception(e, request, response,servletBean);
 			if (!response.isCommitted())
 				response.sendError(e.getStatus(), e.getMessage());
 		} catch (Throwable e) {
 			ServletExceptionHandler servletExceptionHandler = PlugsFactory
 					.getPlugsInstance(ServletExceptionHandler.class);
 			if (servletExceptionHandler != null)
-				servletExceptionHandler.exception(e, request, response);
-			log.error(e.getMessage(),e);
+				servletExceptionHandler.exception(e, request, response,servletBean);
 			if (!response.isCommitted())
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 		}

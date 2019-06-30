@@ -5,13 +5,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.YaNan.frame.servlets.annotations.RESPONSE_METHOD;
-
-@Target({ElementType.FIELD,ElementType.PARAMETER})
+/**
+ * 此注解专用于pojo类型的验证，
+ * 被标识的参数或类或字段都会被解包验证
+ * @author yanan
+ *
+ */
+@Target({ElementType.FIELD,ElementType.TYPE,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Validate {
-	String RegExpression() default "([\\s\\S]*)";
-	String Failed() default "";
-	int method() default RESPONSE_METHOD.OUTPUT;
-	String isNull() default "";
+	Class<?>[] groups() default { };
 }

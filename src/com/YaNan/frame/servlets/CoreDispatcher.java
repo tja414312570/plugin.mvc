@@ -82,7 +82,6 @@ public class CoreDispatcher extends HttpServlet{
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 	        throws ServletException, IOException {
-		
 		//获得资源相对路径
 		String path = getRelativePath(req, true);
 		//判断请求是否forward或include

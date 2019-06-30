@@ -14,9 +14,10 @@ import com.YaNan.frame.plugin.annotations.Register;
 import com.YaNan.frame.plugin.interfacer.PlugsListener;
 import com.YaNan.frame.servlets.session.entity.TokenEntity;
 import com.YaNan.frame.servlets.session.interfaceSupport.TokenHibernateInterface;
+import com.YaNan.frame.servlets.session.interfaceSupport.TokenListener;
 
 @Register
-public class PluginInit  implements ServletContextListener,PlugsListener{
+public class TokenContextInit implements ServletContextListener,PlugsListener{
 	private final Logger log = LoggerFactory.getLogger(TokenManager.class);
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
@@ -40,5 +41,6 @@ public class PluginInit  implements ServletContextListener,PlugsListener{
 	@Override
 	public void excute(PlugsFactory plugsFactory) {
 		plugsFactory.addPlugsByDefault(TokenHibernateInterface.class);
+		plugsFactory.addPlugs(TokenListener.class);
 	}
 }

@@ -111,9 +111,12 @@ public class URLSupport{
 				url.lastIndexOf("/")+1);
 	}
 	public static  String getRelativePath(HttpServletRequest request) {
-        return getRelativePath(request, false);
+        return getRelativePath(request, true);
     }
-	public static String getRelativePath(HttpServletRequest request, boolean allowEmptyPath) {
+	public static  String getRelativePath(HttpServletRequest request,boolean containServletPath) {
+        return getRelativePath(request, false,containServletPath);
+    }
+	public static String getRelativePath(HttpServletRequest request, boolean allowEmptyPath,boolean containServletPath) {
         // IMPORTANT: DefaultServlet can be mapped to '/' or '/path/*' but always
         // serves resources from the web app root with context rooted paths.
         // i.e. it cannot be used to mount the web app root under a sub-path
@@ -133,7 +136,7 @@ public class URLSupport{
         }
 
         StringBuilder result = new StringBuilder();
-        if (servletPath.length() > 0) {
+        if (servletPath.length() > 0&&containServletPath) {
             result.append(servletPath);
         }
         if (pathInfo != null) {

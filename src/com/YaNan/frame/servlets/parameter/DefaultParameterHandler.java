@@ -75,7 +75,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 	@Override
 	public void initHandler(HttpServletRequest request, HttpServletResponse response, ServletBean servletBean,
 			ParameterHandlerCache parameterHandlerCache) {
-		this.pathParameter = PathMatcher.match(servletBean.getPathRegex(), URLSupport.getRelativePath(request))
+		this.pathParameter = PathMatcher.match(servletBean.getPathRegex(), URLSupport.getRelativePath(request,false))
 				.variableMap();
 		if (pathParameter != null)
 			pathIterator = pathParameter.values().iterator();

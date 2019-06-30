@@ -5,7 +5,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.YaNan.frame.plugin.ConfigContext;
 import com.YaNan.frame.plugin.PlugsFactory;
-import com.YaNan.frame.servlets.annotations.RESPONSE_METHOD;
 import com.YaNan.frame.utils.resource.PackageScanner;
 import com.YaNan.frame.utils.resource.PackageScanner.ClassInter;
 import com.YaNan.frame.utils.web.WebPath;
@@ -158,7 +156,7 @@ public class ServletBuilder {
 	 * try get configure file
 	 */
 	private void tryGetScanPackage() {
-		Config conf = ConfigContext.getConfig("MVC");
+		Config conf = ConfigContext.getInstance().getGlobalConfig().getConfig("MVC");
 		if (conf == null) {
 			packageDirs = PlugsFactory.getInstance().getScanPath();
 		} else {
@@ -205,106 +203,7 @@ public class ServletBuilder {
 		}
 		log.debug("Servlets scan package is "+Arrays.toString(packageDirs));
 	}
-
-	/**
-	 * 此方法为了兼容之前版本 初始化servelt文件的内容并与对应的javaBean，生成对应的servlet Action
-	 */
-	@SuppressWarnings("unchecked")
 	public void init() {
 		this.initByScanner();
-		Iterator<Document> i = servletPaths.iterator();
-		while (i.hasNext()) {
-			Node root = i.next().getRootElement();
-			List<Element> packNode = root.selectNodes("package");
-			for (Element e : packNode) {
-				final String nameSpace = e.attributeValue("namespace");
-				List<Element> servletNode = e.selectNodes("servlet");
-				scan_elements: for (Element s : servletNode) {
-					String name = s.attributeValue("name");
-					String childNameSpace = s.attributeValue("namespace");
-					String decode = e.attributeValue("decode");
-					String namespace = (nameSpace.trim().equals("*") && childNameSpace != null ? "" : nameSpace)
-							+ (childNameSpace == null ? ""
-									: (nameSpace.trim().equals("*") && childNameSpace != null ? "" : "/")
-											+ childNameSpace);
-					String className = s.attributeValue("class");
-					String methodName = s.attributeValue("method");
-					String outputStream = s.attributeValue("outputStream");
-					String autoValue = s.attributeValue("auto");
-					boolean auto = (autoValue != null && autoValue.equals("false") ? false : true);
-					List<Element> resultNode = s.selectNodes("result");
-					if (className != null) {
-						ServletBean bean = new ServletBean();
-						Class<?> cls;
-						try {
-							cls = Class.forName(className);
-						} catch (ClassNotFoundException e1) {
-							e1.printStackTrace();
-							log.error("servlet [" + name
-									+ "] is incorrect ,because the class is not found,please check class [" + className
-									+ "]");
-							continue scan_elements;
-						}
-						Method method;
-						try {
-							if (methodName == null)
-								if (auto) {
-									methodName = "execute";
-									log.warn("servlet [" + name + "] set method [execute], at className [" + className
-											+ "]");
-								} else {
-									log.error("servlet [" + name + "] is incorrect ,because the Method [" + methodName
-											+ "] is not exists,please check class:" + className);
-									continue scan_elements;
-								}
-							method = cls.getDeclaredMethod(methodName);
-						} catch (NoSuchMethodException | SecurityException e1) {
-							e1.printStackTrace();
-							log.error("servlet [" + name + "] is incorrect ,because the Method [" + methodName
-									+ "] is incorrect,please check class:" + className);
-							continue scan_elements;
-						}
-						if (method != null) {
-							bean.setMethod(method);
-						} else {
-							log.error("servlet [" + name + "] is incorrect ,because the Method [" + methodName
-									+ "] is incorrect,mabye it not exists or parameters is not null,please check class:"
-									+ className);
-							continue scan_elements;
-						}
-						bean.setServletClass(cls);
-						if (outputStream != null && outputStream.equals("true"))
-							bean.setOutputStream(true);
-						if (decode != null)
-							bean.setDecode(true);
-						if (!resultNode.isEmpty()) {
-							for (Element result : resultNode) {
-								if (result.attributeValue("name") != null && result.getTextTrim() != null) {
-									ServletResult resultObj = new ServletResult();
-									resultObj.setName(namespace + result.attributeValue("name"));
-									resultObj.setValue(result.getTextTrim());
-									String rm = result.attributeValue("method");
-									if (rm != null)
-										if (rm.equals("output"))
-											resultObj.setMethod(RESPONSE_METHOD.OUTPUT);
-										else if (rm.equals("redirect"))
-											resultObj.setMethod(RESPONSE_METHOD.REDIRCET);
-									bean.addResult(resultObj);
-								} else {
-									log.error(
-											"Result : name or value is not exist!! at servlet.xml/../result When servletName="
-													+ name);
-								}
-							}
-						}
-						// this.servletMannager.add(name, bean);
-					} else {
-						log.error("Class:" + className + " not exist!! at servlet.xml/../servlet When servletName="
-								+ name);
-					}
-				}
-			}
-		}
-
 	}
 }

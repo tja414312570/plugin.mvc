@@ -54,7 +54,7 @@ public class ParameterValitationRegister implements InvokeHandler{
 				try {
 					//如果出现错误   则直接返回错误信息
 					if(!parameterHandler.getServletResponse().isCommitted()){
-//						throw new ServletRuntimeException(400,valitation.getMessage());
+//						throw new ParameterVerificationFailed(servletBean,methodHandler,anno);
 						parameterHandler.getServletResponse().setContentType("text/html;charset=UTF-8");
 //						parameterHandler.getServletResponse().setStatus(400);
 						parameterHandler.getServletResponse().getWriter().write(valitation.getMessage());

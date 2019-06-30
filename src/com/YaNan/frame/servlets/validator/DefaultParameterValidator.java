@@ -147,7 +147,12 @@ public class DefaultParameterValidator implements ParameterValidator,ParameterAn
 		int len = value.toString().length();
 		if(anno.value()>=0)
 			return len== anno.value();
-		return len >=anno.min()&&len<=anno.max();
+		if(anno.min()>0&&anno.max()>0)
+			return len >=anno.min()&&len<=anno.max();
+		if(anno.min()>0)
+			return len >=anno.min();
+		return len<=anno.max();
+		
 	}
 
 	private boolean DecimalMax(javax.validation.constraints.DecimalMax anno, Object value, Class<?>[] groups) {

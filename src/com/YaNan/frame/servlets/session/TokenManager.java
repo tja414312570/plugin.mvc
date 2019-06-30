@@ -121,7 +121,7 @@ public class TokenManager{
 			TokenEntity tokenBean = (TokenEntity) i.next();
 			manager.addToken(tokenBean.getNamespace(), tokenBean);
 		}
-		Config conf = ConfigContext.getConfig("Token");
+		Config conf = ConfigContext.getInstance().getGlobalConfig().getConfig("Token");
 		if(conf!=null){
 			conf.allowKeyNull();
 			Timeout = conf.getInt("Timeout",3000);
