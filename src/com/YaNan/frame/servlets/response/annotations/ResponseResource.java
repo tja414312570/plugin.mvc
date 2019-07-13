@@ -20,7 +20,7 @@ public @interface ResponseResource {
 	 */
 	boolean enableBCT() default true;
 	/**
-	 * 响应文件下载名，默认为文件名
+	 * 响应文件名，默认为文件名
 	 */
 	String fileName() default "";
 	/**
@@ -29,9 +29,13 @@ public @interface ResponseResource {
 	 */
 	int buffer() default 2048;
 	/**
-	 * 是否使用下载文件，为false则直接输出类容，默认开启
+	 * 是否响应为浏览器下载文件，为false则直接输出类容，默认开启
 	 */
 	boolean attachment() default true;
+	/**
+	 * 是否使用Nio方式传输文件
+	 */
+	boolean useNio() default true;
 	
 	
 	}

@@ -2,13 +2,24 @@ package com.YaNan.frame.servlets.response;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -28,7 +39,6 @@ import com.YaNan.frame.servlets.response.annotations.ResponseResource;
  */
 @Register(attribute = {"java.io.File","com.YaNan.frame.servlets.response.annotations.ResponseResource"})
 public class FileResponseHandler implements ResponseHandler {
-
 	@Override
 	public void render(HttpServletRequest request, HttpServletResponse response, Object handlerResult,
 			Annotation responseAnnotation, ServletBean servletBean) throws ServletException, IOException {
@@ -51,6 +61,7 @@ public class FileResponseHandler implements ResponseHandler {
 			attr.setBuffer(anno.buffer());
 			attr.setEnableBCT(anno.enableBCT());
 			attr.setAttachment(anno.attachment());
+			attr.setUseNio(anno.useNio());
 			if(!anno.fileName().equals("")){
 				attr.setFileName(anno.fileName());
 			}
@@ -65,13 +76,19 @@ public class FileResponseHandler implements ResponseHandler {
 	 * @throws IOException 
 	 */
 	public void write(HttpServletRequest request, HttpServletResponse response, ResourceAttr resource) throws IOException {
+		FileInputStream fileInputStream = null;
+		ServletOutputStream  fos = null;
+		FileChannel fileChannel = null;
+		ByteBuffer buffer = null;
+		WritableByteChannel writableByteChannel = null;
+		try {
 		if(resource.getFile()==null)
 			throw new RuntimeException("resource file is null!");
 		if(!resource.getFile().exists())
 			throw new ServletRuntimeException(404,"resource file \""+resource.getFile().getName()+"\" is not exists!");
 		if(resource.getFile().isDirectory())
 			throw new RuntimeException("resource file \""+resource.getFile().getName()+"\" is a directory!");
-		FileInputStream fileInputStream = new FileInputStream(resource.getFile());
+		fileInputStream = new FileInputStream(resource.getFile());
 		//use utf-8 encoding
 		String filename = new String(resource.getFileName().getBytes("ISO8859-1"), "UTF-8");
 		String agent = request.getHeader("User-Agent");
@@ -94,12 +111,15 @@ public class FileResponseHandler implements ResponseHandler {
 		//set response content length
 		response.setContentLengthLong(fileLength);
 		//response as download
-		response.setHeader("Content-Disposition", "attachment;filename=" + filenameEncoder);
+		if(resource.attachment) {
+			response.setHeader("Content-Disposition", "attachment;filename=" + filenameEncoder);
+		}
 		// if enable break point continue translate
+		long pos = 0;
 		if(resource.enableBCT){
 			String range = request.getHeader("Range");
 			if (range != null) {
-				long pos = Long.parseLong(range.replaceAll("bytes=", "").replaceAll("-", ""));
+				pos = Long.parseLong(range.replaceAll("bytes=", "").replaceAll("-", ""));
 				response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 				if (pos != 0) {
 					String contentRange = new StringBuffer("bytes ").append(new Long(pos).toString()).append("-")
@@ -110,21 +130,107 @@ public class FileResponseHandler implements ResponseHandler {
 				}
 			}
 		}
-		
-		ServletOutputStream fos = response.getOutputStream();
-		byte[] bytes = new byte[resource.getBuffer()];
-		int len = 0;
-		while (true) {
-			len = fileInputStream.read(bytes);
-			if (len == -1)
-				break;
-			fos.write(bytes, 0, len);
+		fos = response.getOutputStream();
+		if(resource.useNio) {
+			fileChannel = fileInputStream.getChannel();
+			writableByteChannel = Channels.newChannel(fos);
+			fileChannel.transferTo(pos, fileChannel.size()-pos, writableByteChannel);
+//			buffer = ByteBufferPools.getByteBuffer();
+//			int len = 0;
+//			while((len = fileChannel.read(buffer)) > -1) {
+//				if(len == 0)
+//					continue;
+//				buffer.flip();
+//				while(buffer.hasRemaining())
+//					fos.write(buffer.get());
+//				buffer.compact();
+//			}
+		}else {
+			byte[] bytes = new byte[resource.getBuffer()];
+			int len = 0;
+			while (true) {
+				len = fileInputStream.read(bytes);
+				if (len == -1)
+					break;
+				fos.write(bytes, 0, len);
+			}
 		}
-		if (fileInputStream != null) {
-			fileInputStream.close();
+		}finally {
+			if (fileInputStream != null) {
+				fileInputStream.close();
+			}
+			if (fos != null) {
+				fos.flush();
+				fos.close();
+			}
+			if(fileChannel != null) {
+				fileChannel.close();
+			}
+			if(buffer != null) {
+				ByteBufferPools.release(buffer);
+			}
+			if(writableByteChannel != null) {
+				writableByteChannel.close();
+			}
 		}
-		if (fos != null) {
-			fos.close();
+	}
+	public static void main(String[] args) throws IOException {
+//		FileInputStream fis = new FileInputStream(new File("/Users/yanan/Downloads/gybk(1).apk"));
+//		fis.skip(1000);
+//		System.out.println(fis.getChannel().position());
+		AtomicInteger ai = new AtomicInteger();
+		Executor executor  = Executors.newFixedThreadPool(10);
+		for(int i =0 ;i<3000;i++) {
+			executor.execute((new Runnable() {
+				@Override
+				public void run() {
+					int i = ai.getAndIncrement();
+					ByteBuffer buffer = null;
+					FileInputStream fis = null;
+					FileChannel fileChannel = null;
+					try {
+						fis = new FileInputStream(new File("/Users/yanan/Downloads/gybk(1).apk"));
+						fileChannel = fis.getChannel();
+						buffer = ByteBufferPools.getByteBuffer();
+						int len = 0;
+						while(fileChannel.read(buffer) > 0) {
+							buffer.flip();
+							len+=buffer.remaining();
+							while(buffer.hasRemaining())
+								buffer.get();
+//							buffer.reset();
+							buffer.compact();
+						}
+//						ByteBufferPools.release(buffer);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}finally {
+						if (fis != null) {
+							try {
+								fis.close();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						if(fileChannel != null) {
+							try {
+								fileChannel.close();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						if(buffer != null) {
+							buffer.compact();
+							ByteBufferPools.release(buffer);
+						}
+					}
+					
+				}
+			}));
+			
 		}
 	}
 	/**
@@ -142,6 +248,8 @@ public class FileResponseHandler implements ResponseHandler {
 		private boolean enableBCT = true;
 		//是否下载文件
 		private boolean attachment = true;
+		//是否使用Nio方式响应文件
+		private boolean useNio = true;
 		
 		public ResourceAttr(File file) {
 			this.file = file;
@@ -176,6 +284,12 @@ public class FileResponseHandler implements ResponseHandler {
 		}
 		public void setAttachment(boolean attachment) {
 			this.attachment = attachment;
+		}
+		public boolean isUseNio() {
+			return useNio;
+		}
+		public void setUseNio(boolean useNio) {
+			this.useNio = useNio;
 		}
 	}
 
