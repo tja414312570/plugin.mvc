@@ -256,7 +256,7 @@ public class RestfulDispatcher extends HttpServlet
 	 */
 	public Object invokeProxyMethhod(HttpServletRequest request, HttpServletResponse response, ServletBean servletBean,
 			Object proxyObject, List<Object> parameters)
-			throws ServletException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			throws Throwable {
 		Object[] parameter = null;
 		// 判断需要的参数是否与获得的参数匹配
 		if (servletBean.getParameters() != null) {

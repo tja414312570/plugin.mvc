@@ -230,7 +230,7 @@ public class Token {
 		if(path==null)
 			path = request.getContextPath().length()==0?"/":request.getContextPath();
 		cookie.setPath(path);
-		cookie.setMaxAge(token.getTimeOut());
+//		cookie.setMaxAge(token.getTimeOut());
 		cookie.setHttpOnly(TokenManager.HttpOnly);
 		cookie.setSecure(TokenManager.secure);//启用时 非 https 不能获取到ID
 		response.addCookie(cookie);

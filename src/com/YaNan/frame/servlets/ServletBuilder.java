@@ -121,11 +121,8 @@ public class ServletBuilder {
 	}
 
 	private void initByScanner(String... paths) {
-		for (String path : paths) {
-			if (path == null)
-				continue;
 			PackageScanner scanner = new PackageScanner();
-			scanner.setPackageName(path);
+			scanner.addScanPath(paths);
 			scanner.doScanner(new ClassInter() {
 				@Override
 				public void find(Class<?> cls) {
@@ -151,7 +148,6 @@ public class ServletBuilder {
 				}
 			});
 		}
-	}
 	/**
 	 * try get configure file
 	 */
