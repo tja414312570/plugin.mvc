@@ -5,11 +5,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -51,6 +53,7 @@ public class RestfulDispatcher extends HttpServlet
 	private final Logger log = LoggerFactory.getLogger( RestfulDispatcher.class);
 	protected boolean showServerInfo = true;
 	protected Servlet servlet;
+	
 	// 支持的注解类型
 	private static final Class<?>[] annotations = { com.YaNan.frame.servlets.annotations.RequestMapping.class,
 			com.YaNan.frame.servlets.annotations.GetMapping.class,
@@ -58,7 +61,6 @@ public class RestfulDispatcher extends HttpServlet
 			com.YaNan.frame.servlets.annotations.PostMapping.class,
 			com.YaNan.frame.servlets.annotations.DeleteMapping.class };
 	private static final ServletMappingBuilder servletMappingBuilder = new ServletBeanBuilder();
-
 	/**
 	 * 此方法用于处理restful的整个业务逻辑，包括一下循序 1、获取真实的servletBean（url需要进行重组，否则不会识别 get post
 	 * delete put等请求） 2、获取封装参数
@@ -83,6 +85,7 @@ public class RestfulDispatcher extends HttpServlet
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
+		RequestContext.setCurrentRequestContext(servletBean, request, response);
 		try {
 			// 获取Servlet类代理对象的实例
 			Object proxyObject = PlugsFactory.getPlugsInstance(servletBean.getServletClass());
@@ -154,20 +157,43 @@ public class RestfulDispatcher extends HttpServlet
 			}
 			proxyObject = null;
 			parameters = null;
-		} catch (ServletRuntimeException e) {
-			ServletExceptionHandler servletExceptionHandler = PlugsFactory
-					.getPlugsInstance(ServletExceptionHandler.class);
-			if (servletExceptionHandler != null)
-				servletExceptionHandler.exception(e, request, response,servletBean);
+		} catch (Throwable throwable) {
+			doException(throwable, request, response, servletBean);
+		}finally {
+			RequestContext.remvoeCurrentContxt();
+		}
+	}
+	/**
+	 * 请求异常时处理
+	 * @param throwable
+	 * @param request
+	 * @param response
+	 * @param servletBean
+	 * @throws IOException
+	 * @throws ServletException
+	 */
+	private void doException(Throwable throwable,HttpServletRequest request,HttpServletResponse response,ServletBean servletBean) throws IOException, ServletException {
+		//定义一个异常的处理链
+		Set<ServletExceptionHandler> exceptionHandlerSet = new HashSet<ServletExceptionHandler>();
+		Throwable t = throwable;
+		while(t != null){
+			List<ServletExceptionHandler> servletExceptionHandler = PlugsFactory
+					.getPlugsInstanceListByAttribute(ServletExceptionHandler.class,t.getClass().getName());
+			exceptionHandlerSet.addAll(servletExceptionHandler);
+			t = t.getCause();
+		}
+		// 没有异常处理，默认错误处理方式
+		if (exceptionHandlerSet.isEmpty()) {
 			if (!response.isCommitted())
-				response.sendError(e.getStatus(), e.getMessage());
-		} catch (Throwable e) {
-			ServletExceptionHandler servletExceptionHandler = PlugsFactory
-					.getPlugsInstance(ServletExceptionHandler.class);
-			if (servletExceptionHandler != null)
-				servletExceptionHandler.exception(e, request, response,servletBean);
-			if (!response.isCommitted())
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+				if(throwable.getClass().equals(ServletRuntimeException.class)) {
+					response.sendError(((ServletRuntimeException)throwable).getStatus(), throwable.getMessage());
+				}else {
+					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, throwable.getMessage());
+				}
+		}else {
+			for(ServletExceptionHandler servletExceptionHandler : exceptionHandlerSet) {
+				servletExceptionHandler.exception(throwable, request, response,servletBean);
+			}
 		}
 	}
 
