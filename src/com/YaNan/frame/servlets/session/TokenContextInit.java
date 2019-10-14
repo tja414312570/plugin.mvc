@@ -39,7 +39,7 @@ public class TokenContextInit implements ServletContextListener,PlugsListener{
 			}
 		}
 	@Override
-	public void excute(PlugsFactory plugsFactory) {
+	public void execute(PlugsFactory plugsFactory) {
 		plugsFactory.addPlugsByDefault(TokenHibernateInterface.class);
 		plugsFactory.addPlugs(TokenListener.class);
 	}
