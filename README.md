@@ -1,6 +1,6 @@
 # plugin.mvc MVC组件
 特点
-* CRUD方式请求（@RequestMapping，@GetMapping等）
+* REST请求（@RequestMapping，@GetMapping等）
 * 参数验证 （基于jsr303 1.0.2 版本）
 * multiForm表单支持
 * 文件上传支持
