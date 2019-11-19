@@ -26,6 +26,10 @@ public class TokenContextInit implements ServletContextListener,PlugsListener{
 	}
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
+		if(PlugsFactory.getPlug(TokenHibernateInterface.class) == null)
+			PlugsFactory.getInstance().addPlugs(TokenHibernateInterface.class);
+		if(PlugsFactory.getPlug(TokenListener.class) == null)
+			PlugsFactory.getInstance().addPlugs(TokenListener.class);
 		log.debug("================================================================================================================");
 		log.debug("Start init Token plugin");
 		log.debug("Get Token Data Hiberanate Interfacer:"+(PlugsFactory.getPlug(TokenHibernateInterface.class).getDefaultRegisterDescription()==null

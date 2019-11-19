@@ -1,8 +1,10 @@
 package com.YaNan.frame.servlets.session.interfaceSupport;
 
 
+import com.YaNan.frame.plugin.annotations.Service;
 import com.YaNan.frame.servlets.session.entity.TokenCell;
 
+@Service
 public interface TokenHibernateInterface {
 /************************token 基础部分***********************/
 	boolean containerToken(String tokenId);

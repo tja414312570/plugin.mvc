@@ -36,8 +36,8 @@ public class ServletContextInit implements ServletContextListener{
 	public void contextInitialized(ServletContextEvent sce) {
 		// add Plugin configure
 		ServerContext serverContext = ServerContext.getContext();
-		if(serverContext==null) {
-			log.debug("None Web Servler Env");
+		if(serverContext==null || sce == null ) {
+			log.debug("None Web Server Env");
 			return ;
 		}
 		serverContext.init(sce.getServletContext());
