@@ -370,6 +370,7 @@ public class RestfulDispatcher extends HttpServlet
 	 */
 	public void rebuildServlet(Class<?> originClass, Class<?> updateClass) {
 		Map<String, ServletBean> mapping = ServletMapping.getInstance().getServletMapping();
+		System.out.println(ServletMapping.getInstance());
 		Map<String, ServletBean> styleMapping = ServletMapping.getInstance().getServletMappingByStype(ActionStyle);
 		Iterator<Entry<String, ServletBean>> iterator = mapping.entrySet().iterator();
 		while (iterator.hasNext()) {

@@ -15,6 +15,7 @@ import com.YaNan.frame.plugin.interfacer.PlugsListener;
 import com.YaNan.frame.servlets.session.entity.TokenEntity;
 import com.YaNan.frame.servlets.session.interfaceSupport.TokenHibernateInterface;
 import com.YaNan.frame.servlets.session.interfaceSupport.TokenListener;
+import com.YaNan.frame.servlets.session.parameter.TokenParameterHandler;
 
 @Register
 public class TokenContextInit implements ServletContextListener,PlugsListener{
@@ -36,6 +37,7 @@ public class TokenContextInit implements ServletContextListener,PlugsListener{
 				?null:PlugsFactory.getPlug(TokenHibernateInterface.class).getDefaultRegisterDescription().getRegisterClass().getName()));
 		log.debug("Iterative Token Mapping");
 		TokenManager.init();
+		PlugsFactory.getInstance().addPlugs(TokenParameterHandler.class);
 		Iterator<Entry<String, TokenEntity>> ei = TokenManager.getInstance().getTokenMap().entrySet().iterator();
 		while(ei.hasNext()){
 			Entry<String, TokenEntity> e = ei.next();
