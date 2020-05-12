@@ -2,15 +2,12 @@ package com.YaNan.frame.servlets.response;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,7 +15,6 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletException;
@@ -184,7 +180,7 @@ public class FileResponseHandler implements ResponseHandler {
 			executor.execute((new Runnable() {
 				@Override
 				public void run() {
-					int i = ai.getAndIncrement();
+					ai.getAndIncrement();
 					ByteBuffer buffer = null;
 					FileInputStream fis = null;
 					FileChannel fileChannel = null;
@@ -192,10 +188,9 @@ public class FileResponseHandler implements ResponseHandler {
 						fis = new FileInputStream(new File("/Users/yanan/Downloads/gybk(1).apk"));
 						fileChannel = fis.getChannel();
 						buffer = ByteBufferPools.getByteBuffer();
-						int len = 0;
 						while(fileChannel.read(buffer) > 0) {
 							buffer.flip();
-							len+=buffer.remaining();
+							buffer.remaining();
 							while(buffer.hasRemaining())
 								buffer.get();
 //							buffer.reset();

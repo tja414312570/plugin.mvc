@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.YaNan.frame.plugin.PlugsFactory;
 import com.YaNan.frame.plugin.annotations.Register;
-import com.YaNan.frame.utils.reflect.ClassLoader;
 import com.YaNan.frame.servlets.ParameterHandlerCache;
 import com.YaNan.frame.servlets.ServletBean;
 import com.YaNan.frame.servlets.URLSupport;
@@ -45,6 +44,7 @@ import com.YaNan.frame.servlets.parameter.annotations.RequestParam;
 import com.YaNan.frame.servlets.parameter.annotations.SessionAttributes;
 import com.YaNan.frame.servlets.parameter.annotations.UUID;
 import com.YaNan.frame.utils.PathMatcher;
+import com.YaNan.frame.utils.reflect.ClassLoader;
 
 /**
  * 2018-7-15 重新修改parseBaseType代码，将包装类型和原始类型分开 2018-7-9 重新修改获取参数逻辑 默认的参数调配器，优先级最低
@@ -465,6 +465,9 @@ public class DefaultParameterHandler implements ParameterHandler {
 			try {
 				return this.specialParams(paras.getType());
 			} catch (Exception e) {
+//				throw new ParameterPreparedExecution("An error occurred while processing the parameters !\r\nat class : "
+//						+ servletBean.getServletClass().getName() + ",\r\nat method : "
+//						+ servletBean.getMethod().getName() + ",\r\nat parameter : " + paras.getName(),paras,e);
 				log.error("An error occurred while processing the parameters !\r\nat class : "
 						+ servletBean.getServletClass().getName() + ",\r\nat method : "
 						+ servletBean.getMethod().getName() + ",\r\nat parameter : " + paras.getName(), e);
@@ -506,6 +509,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 //				pojoClass=plug.getDefaultRegisterDescription().getRegisterClass();
 //			}
 		}
+		
 		// 对pojo类进行ClassLoader的包装，ClassLoader会在内部产生一个pojo类的实例
 		ClassLoader loader = new ClassLoader(pojoClass);
 		// 获取所有的field

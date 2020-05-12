@@ -29,8 +29,8 @@ import com.YaNan.frame.plugin.PlugsFactory;
 public class CoreDispatcher extends HttpServlet{
 	private Logger logger = org.slf4j.LoggerFactory.getLogger(CoreDispatcher.class);
 	private static final long serialVersionUID = -1089658849875241044L;
-	private static final String FORWARD_URI = "javax.servlet.forward.request_uri";
-	private static final String INCLUDE_URI = "javax.servlet.include.request_uri";
+//	private static final String FORWARD_URI = "javax.servlet.forward.request_uri";
+//	private static final String INCLUDE_URI = "javax.servlet.include.request_uri";
 	// 日志类，用于输出日志
 	protected boolean showServerInfo = true;
 	protected Servlet servlet;

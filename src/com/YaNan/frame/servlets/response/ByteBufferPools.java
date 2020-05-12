@@ -3,7 +3,6 @@ package com.YaNan.frame.servlets.response;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import com.typesafe.config.Config;
 
 import sun.misc.Cleaner;
 
+@SuppressWarnings("restriction")
 public class ByteBufferPools {
 	private static volatile ConcurrentLinkedDeque<ByteBuffer> bufferPools;
 	private static final int DEFAULT_POOLS = 10;
@@ -96,6 +96,7 @@ public class ByteBufferPools {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void clean(ByteBuffer byteBuffer) {
 		if (byteBuffer.isDirect()) {
 			Field cleanerField;
