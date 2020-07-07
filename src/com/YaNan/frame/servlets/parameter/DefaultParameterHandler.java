@@ -44,7 +44,7 @@ import com.YaNan.frame.servlets.parameter.annotations.RequestParam;
 import com.YaNan.frame.servlets.parameter.annotations.SessionAttributes;
 import com.YaNan.frame.servlets.parameter.annotations.UUID;
 import com.YaNan.frame.utils.PathMatcher;
-import com.YaNan.frame.utils.reflect.ClassLoader;
+import com.YaNan.frame.utils.reflect.AppClassLoader;
 
 /**
  * 2018-7-15 重新修改parseBaseType代码，将包装类型和原始类型分开 2018-7-9 重新修改获取参数逻辑 默认的参数调配器，优先级最低
@@ -510,8 +510,8 @@ public class DefaultParameterHandler implements ParameterHandler {
 //			}
 		}
 		
-		// 对pojo类进行ClassLoader的包装，ClassLoader会在内部产生一个pojo类的实例
-		ClassLoader loader = new ClassLoader(pojoClass);
+		// 对pojo类进行AppClassLoader的包装，AppClassLoader会在内部产生一个pojo类的实例
+		AppClassLoader loader = new AppClassLoader(pojoClass);
 		// 获取所有的field
 		Field[] fields = loader.getDeclaredFields();
 		for (Field field : fields) {
@@ -524,7 +524,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 				ParameterHandler parameterHandler = parameterHandlerCache.getParameterHandler(parameterAnnotation);
 				Object value = parameterHandler.getParameter(field, parameterAnnotation);
 				if (value != null) {
-					String fieldSetMethod = ClassLoader.createFieldSetMethod(field);
+					String fieldSetMethod = AppClassLoader.createFieldSetMethod(field);
 					if (loader.hasDeclaredMethod(fieldSetMethod, field.getType()))
 						loader.invokeMethod(fieldSetMethod, value);
 					else
@@ -535,7 +535,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 			ParameterHandler parameterHandler = parameterHandlerCache.getParameterHandler(field.getType());
 			Object value = parameterHandler.getParameter(field);
 			if (value != null) {
-				String fieldSetMethod = ClassLoader.createFieldSetMethod(field);
+				String fieldSetMethod = AppClassLoader.createFieldSetMethod(field);
 				if (loader.hasDeclaredMethod(fieldSetMethod, field.getType()))
 					loader.invokeMethod(fieldSetMethod, value);
 				else

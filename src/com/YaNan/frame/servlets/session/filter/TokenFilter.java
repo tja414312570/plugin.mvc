@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.YaNan.frame.plugin.PlugsFactory;
-import com.YaNan.frame.utils.reflect.ClassLoader;
+import com.YaNan.frame.utils.reflect.AppClassLoader;
 import com.YaNan.frame.servlets.ServletBean;
 import com.YaNan.frame.servlets.ServletDispatcher;
 import com.YaNan.frame.servlets.ServletMapping;
@@ -155,7 +155,7 @@ public class TokenFilter extends HttpServlet implements Filter {
 		}
 		if(tokenEntity.getCLASS()!=null){
 			Class<?> cls  = Class.forName(tokenEntity.getCLASS());
-			if(ClassLoader.implementOf(cls,TokenFilterInterface.class)){
+			if(AppClassLoader.implementOf(cls,TokenFilterInterface.class)){
 				TokenFilterInterface ti = (TokenFilterInterface) cls.newInstance();
 				String ro = ti.excute(request,response, token);
 				if(ro==null){

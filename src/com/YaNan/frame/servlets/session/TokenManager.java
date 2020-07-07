@@ -16,7 +16,6 @@ import com.YaNan.frame.servlets.session.entity.Result;
 import com.YaNan.frame.servlets.session.entity.TokenEntity;
 import com.YaNan.frame.servlets.session.interfaceSupport.TokenHibernateInterface;
 import com.YaNan.frame.utils.PathMatcher;
-import com.YaNan.frame.utils.beans.BeanFactory;
 import com.YaNan.frame.utils.beans.XMLBean;
 import com.typesafe.config.Config;
 
@@ -108,7 +107,7 @@ public class TokenManager{
 			log.error("token xml file is not exists path:"+this.file.getAbsoluteFile());
 			return;
 		}
-		XMLBean xmlBean = BeanFactory.getXMLBean();
+		XMLBean xmlBean =new XMLBean();
 		xmlBean.addXMLFile(this.file);
 		xmlBean.addElementPath("/Token");
 		xmlBean.setNodeName("token");
