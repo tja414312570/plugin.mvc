@@ -44,6 +44,7 @@ import com.yanan.frame.servlets.parameter.annotations.RequestParam;
 import com.yanan.frame.servlets.parameter.annotations.SessionAttributes;
 import com.yanan.frame.servlets.parameter.annotations.UUID;
 import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.cache.ClassInfoCache;
 import com.yanan.utils.string.PathMatcher;
 
 /**
@@ -524,7 +525,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 				ParameterHandler parameterHandler = parameterHandlerCache.getParameterHandler(parameterAnnotation);
 				Object value = parameterHandler.getParameter(field, parameterAnnotation);
 				if (value != null) {
-					String fieldSetMethod = AppClassLoader.createFieldSetMethod(field);
+					String fieldSetMethod = ClassInfoCache.getFieldSetMethod(field);
 					if (loader.hasDeclaredMethod(fieldSetMethod, field.getType()))
 						loader.invokeMethod(fieldSetMethod, value);
 					else
@@ -535,7 +536,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 			ParameterHandler parameterHandler = parameterHandlerCache.getParameterHandler(field.getType());
 			Object value = parameterHandler.getParameter(field);
 			if (value != null) {
-				String fieldSetMethod = AppClassLoader.createFieldSetMethod(field);
+				String fieldSetMethod = ClassInfoCache.getFieldSetMethod(field);
 				if (loader.hasDeclaredMethod(fieldSetMethod, field.getType()))
 					loader.invokeMethod(fieldSetMethod, value);
 				else

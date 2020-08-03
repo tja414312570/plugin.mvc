@@ -2,6 +2,8 @@ package com.yanan.frame.servlets;
 
 import javax.servlet.ServletContext;
 
+import com.typesafe.config.Config;
+
 /**
  * support web server context
  * @author yanan
@@ -30,6 +32,7 @@ public class ServerContext {
 	public static final String WILDFLY_ID = "wildfly";
 	private final ServerType serverType;
 	private ServletContext servletContext;
+	private Config config;
 	private ServerContext() {
 		serverType = tryGetServerType();
 	}
@@ -42,7 +45,6 @@ public class ServerContext {
 			synchronized (ServerContext.class) {
 				if(serverContext == null) {
 					serverContext = new ServerContext();
-					
 				}
 			}
 		}
@@ -95,13 +97,16 @@ public class ServerContext {
 
 		return false;
 	}
-
+	/**
+	 * 判断是否支持的WEB环境
+	 * @param serverType servlet类型
+	 * @return 是否支持
+	 */
 	public static boolean isSupported(String serverType) {
 		if (serverType.equals(ServerContext.TOMCAT_ID) ||
 			serverType.equals(ServerContext.WEBLOGIC_ID) ||
 			serverType.equals(ServerContext.WEBSPHERE_ID) ||
 			serverType.equals(ServerContext.WILDFLY_ID)) {
-
 			return true;
 		}
 
@@ -190,7 +195,10 @@ public class ServerContext {
 		String value = System.getProperty(key);
 		return value != null;
 	}
-
+	/**
+	 * 获取当前WEB环境类型
+	 * @return 服务类型
+	 */
 	public ServerType servetType() {
 		return serverType;
 	}
@@ -209,6 +217,12 @@ public class ServerContext {
 	}
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+	public void setConfig(Config config) {
+		this.config = config;
+	}
+	public Config getConfig() {
+		return config;
 	}
 
 }

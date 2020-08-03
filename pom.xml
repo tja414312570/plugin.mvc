@@ -5,7 +5,7 @@
 	<groupId>com.github.tja414312570</groupId>
 	<artifactId>plugin.mvc</artifactId>
 	<version>0.0.1</version>
-	<name>mvc</name>
+	<name>plugin.mvc</name>
 	<description>support servlets </description>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>

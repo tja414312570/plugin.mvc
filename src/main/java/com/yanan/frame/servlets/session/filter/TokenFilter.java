@@ -36,7 +36,7 @@ import com.yanan.frame.servlets.session.entity.Result;
 import com.yanan.frame.servlets.session.entity.TokenEntity;
 import com.yanan.frame.servlets.session.interfaceSupport.TokenFilterInterface;
 import com.yanan.frame.servlets.session.interfaceSupport.Token_Command_Type;
-import com.yanan.utils.reflect.AppClassLoader;
+import com.yanan.utils.reflect.ReflectUtils;
 import com.yanan.utils.string.StringUtil;
 /**
  * 优先处理action，然后处理命名空间
@@ -155,7 +155,7 @@ public class TokenFilter extends HttpServlet implements Filter {
 		}
 		if(tokenEntity.getCLASS()!=null){
 			Class<?> cls  = Class.forName(tokenEntity.getCLASS());
-			if(AppClassLoader.implementOf(cls,TokenFilterInterface.class)){
+			if(ReflectUtils.implementOf(cls,TokenFilterInterface.class)){
 				TokenFilterInterface ti = (TokenFilterInterface) cls.newInstance();
 				String ro = ti.excute(request,response, token);
 				if(ro==null){

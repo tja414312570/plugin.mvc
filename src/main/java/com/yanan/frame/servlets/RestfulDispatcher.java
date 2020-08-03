@@ -30,6 +30,7 @@ import com.yanan.frame.servlets.parameter.ParameterHandler;
 import com.yanan.frame.servlets.response.ResponseHandler;
 import com.yanan.frame.servlets.response.annotations.ResponseType;
 import com.yanan.frame.plugin.PlugsFactory;
+import com.yanan.frame.plugin.exception.RegisterNotFound;
 
 /**
  * Restful 核心调配器
@@ -129,18 +130,24 @@ public class RestfulDispatcher extends HttpServlet
 							response.getWriter().close();
 						} else {
 							Class<?> handlerResultType = handlerResult.getClass();
-							ResponseHandler responseHandler = PlugsFactory.getPluginsInstanceByAttributeStrict(
-									ResponseHandler.class, handlerResultType.getName());
-							// 如果handler不为空，则调用handler，否则直接输出
-							if (responseHandler != null) {
-								// 通过responseHandler对结果进行渲染并输出
+							try {
+								ResponseHandler responseHandler = PlugsFactory.getPluginsInstanceByAttributeStrict(
+										ResponseHandler.class, handlerResultType.getName());
 								responseHandler.render(request, response, handlerResult, null, servletBean);
-							} else {
+							}catch (RegisterNotFound e) {
 								response.setContentType(contextType);
 								response.getWriter().write(handlerResult.toString());
 								response.getWriter().flush();
 								response.getWriter().close();
 							}
+							
+//							// 如果handler不为空，则调用handler，否则直接输出
+//							if (responseHandler != null) {
+//								// 通过responseHandler对结果进行渲染并输出
+//								
+//							} else {
+//								
+//							}
 						}
 					} else {
 						// 获取第一个ResponseType的注解

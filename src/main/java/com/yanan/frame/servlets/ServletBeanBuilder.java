@@ -7,62 +7,19 @@ import java.lang.reflect.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yanan.frame.servlets.annotations.Action;
-import com.yanan.frame.servlets.annotations.ActionResults;
-import com.yanan.frame.servlets.annotations.RequestMapping;
-import com.yanan.frame.servlets.annotations.ActionResults.Result;
 import com.yanan.frame.servlets.annotations.DeleteMapping;
 import com.yanan.frame.servlets.annotations.GetMapping;
 import com.yanan.frame.servlets.annotations.PostMapping;
 import com.yanan.frame.servlets.annotations.PutMapping;
+import com.yanan.frame.servlets.annotations.RequestMapping;
 
+/**
+ * 默认的ServletBean构造器
+ * @author yanan
+ */
 public class ServletBeanBuilder implements ServletMappingBuilder{
-	public static final String ACTION_STYLE="ACTION_STYLE";
 	public static final String RESTFUL_STYLE="RESTFUL_STYLE";
 	static Logger log = LoggerFactory.getLogger(ServletBeanBuilder.class);
-	public static boolean builderAction(Action action, Method method, RequestMapping parentRequestMaping, ServletMapping servletMannager){
-		ServletBean bean = new ServletBean();
-		if (method.getParameterCount()!=0) 
-			log.error("the Parameters at action method ["
-					+ method
-					+ "] should be null,please check :["+method+" or use @RequestMapping parse to restful style]");
-			bean.setMethod(method);
-			bean.setStyle(ACTION_STYLE);
-			String urlPath = action.namespace();
-			if(parentRequestMaping!=null){
-				String namespace = parentRequestMaping.value().trim();
-				if(namespace.equals(""))
-					namespace = "/"+method.getDeclaringClass().getSimpleName();
-				else if(namespace.equals("/"))
-					namespace="";
-				urlPath = namespace+urlPath;
-			}
-			String actionName = action.value().equals("")?method.getName():action.value();
-			urlPath =urlPath+actionName;
-			bean.setUrlmapping(urlPath);
-			bean.setPathRegex(urlPath);
-			bean.setArgs(action.args());
-			bean.setServletClass(method.getDeclaringClass());
-			bean.setOutputStream(action.output());
-			bean.setDecode(action.decode());
-			bean.setCorssOrgin(action.CorssOrgin());
-			bean.setType(action.method());
-			bean.setDescription(action.description());
-			Result[] results =method.getAnnotationsByType(Result.class);
-			if(results.length==0){
-				ActionResults actionResults = method.getAnnotation(ActionResults.class);
-				if(actionResults!=null)results = actionResults.value();
-			}
-			for (Result result : results) {
-				ServletResult resultObj =new ServletResult();
-				resultObj.setName(result.name());
-				resultObj.setValue(result.value());
-				resultObj.setMethod(result.method());
-				bean.addResult(resultObj);
-			}
-			servletMannager.add(bean);
-		return true;
-	}
 	public static boolean builderRestful(RequestMapping requestMapping, Method method, RequestMapping parentRequestMaping, ServletMapping servletMannager){
 		if(requestMapping.method().length==0)
 			return true;
@@ -135,10 +92,6 @@ public class ServletBeanBuilder implements ServletMappingBuilder{
 		}
 		if(annotationClass.equals(DeleteMapping.class)){//DeleteMapping
 			builderRestful((DeleteMapping) annotation, beanMethod, beanClass.getAnnotation(RequestMapping.class), servletMannager);
-			return true;
-		}
-		if(annotationClass.equals(Action.class)){
-			builderAction((Action) annotation, beanMethod, beanClass.getAnnotation(RequestMapping.class), servletMannager);
 			return true;
 		}
 		return false;

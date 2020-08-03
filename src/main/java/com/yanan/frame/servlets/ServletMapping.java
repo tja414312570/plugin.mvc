@@ -8,6 +8,11 @@ import java.util.TreeMap;
 
 import com.yanan.utils.string.PathMatcher;
 
+/**
+ * Servlet映射
+ * @author yanan
+ *
+ */
 public class ServletMapping {
 	/**
 	 * 排序规则

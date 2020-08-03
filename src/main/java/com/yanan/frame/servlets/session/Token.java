@@ -109,14 +109,19 @@ public class Token {
 	private void initListener() {
 		if(listenerList ==null){
 			listenerList = new ArrayList<TokenListener>();
-			List<RegisterDefinition> registerList = PlugsFactory.getInstance().getRegisterList(TokenListener.class);
-			for(RegisterDefinition reg : registerList){
-				try {
-					listenerList.add(PluginInstanceFactory.getRegisterInstance(reg,TokenListener.class));
-				} catch (Exception e) {
-					log.error(e.getMessage(),e);
+			try {
+				List<RegisterDefinition> registerList = PlugsFactory.getInstance().getRegisterList(TokenListener.class);
+				for(RegisterDefinition reg : registerList){
+					try {
+						listenerList.add(PluginInstanceFactory.getRegisterInstance(reg,TokenListener.class));
+					} catch (Exception e) {
+						log.error(e.getMessage(),e);
+					}
 				}
+			}catch (Exception e) {
+				e.printStackTrace();
 			}
+			
 		}
 		for(TokenListener listener : listenerList){
 			listener.init(this);

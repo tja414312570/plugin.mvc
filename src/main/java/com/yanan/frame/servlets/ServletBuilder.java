@@ -1,185 +1,133 @@
 package com.yanan.frame.servlets;
 
-import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.typesafe.config.Config;
 import com.typesafe.config.ConfigList;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
 import com.yanan.frame.plugin.Environment;
 import com.yanan.frame.plugin.PlugsFactory;
+import com.yanan.frame.servlets.exception.MVCContextInitException;
+import com.yanan.utils.ArrayUtils;
 import com.yanan.utils.resource.scanner.PackageScanner;
 import com.yanan.utils.resource.scanner.PackageScanner.ClassInter;
-import com.yanan.utils.web.WebPath;
 
 /**
- * The ServletBuilder be used read servlet file or servlet configure
+ * 这是一个ServletBean构建器，用于将java bean构建成Servlet Bean的映射
  * <p>
- * scan class file and manager servlet mapping
+ * 20200731 不在提供xml构建，重新修改配置的逻辑，全面采用Hoconf配置
  * 
- * @author Administrator
+ * @author yanan
  *
  */
 public class ServletBuilder {
+	// 单例模式
 	private static volatile ServletBuilder servletInstance;
+	// server映射
 	private ServletMapping servletMannager;
-	private List<Document> servletPaths = new ArrayList<Document>();
-	private final Logger log = LoggerFactory.getLogger(ServletBuilder.class);
-	private String[] packageDirs;
+	// 日志
+	private final Logger logger = LoggerFactory.getLogger(ServletBuilder.class);
+	private String[] packages;
 
 	/**
-	 * get plugin context package scan paths
+	 * 获取ServletBuilder的扫描位置
+	 * <p>
+	 * 你只能拿到副本
 	 * 
-	 * @return package path
+	 * @return 扫描位置
 	 */
 	public String[] getScanPath() {
-		return Arrays.copyOf(packageDirs, packageDirs.length);
-	}
-
-	private ServletBuilder() {
-		if (WebPath.getWebPath() != null && WebPath.getWebPath().getClassPath() != null) {
-			String servletCfg = WebPath.getWebPath().getClassPath().realPath + "servlet.xml";
-			if (new File(servletCfg).exists())
-				addServletXml(servletCfg);
-		}
-		this.servletMannager = ServletMapping.getInstance();
-		this.init();
+		return Arrays.copyOf(packages, packages.length);
 	}
 
 	/**
-	 * get ServletBuilder instance
+	 * 初始化ServletBuilder
+	 */
+	private ServletBuilder() {
+		this.servletMannager = ServletMapping.getInstance();
+	}
+
+	/**
+	 * ServletBuilder为单例模式，此方法用于获取ServletBuilder实例
 	 * 
-	 * @return
+	 * @return servletBuilder实例
 	 */
 	public static ServletBuilder getInstance() {
-		if (servletInstance == null) {
-			synchronized (ServletBuilder.class) {
-				if (servletInstance == null) {
-					servletInstance = new ServletBuilder();
-				}
-			}
-		}
+		// 使用环境保证单例
+		Environment.getEnviroment().executeOnlyOnce(ServletBuilder.class, () -> {
+			servletInstance = new ServletBuilder();
+		});
 		return servletInstance;
 	}
 
-	/**
-	 * 添加servlet文件路径
-	 * 
-	 * @param xmlPath
-	 */
-	@SuppressWarnings("unchecked")
-	public void addServletXml(String xmlPath) {
-		if (new File(xmlPath).exists()) {
-			try {
-				Document doc = toDocument(xmlPath);
-				Node root = doc.getRootElement();
-				List<Element> includeNode = root.selectNodes("include");
-				for (Element e : includeNode) {
-					String namespace = e.attributeValue("namespace");
-					namespace = (namespace.equals("/") ? "" : namespace);
-					String file = e.getTextTrim();
-					String Path = WebPath.getWebPath().getClassPath().realPath + namespace + file;
-					if (new File(Path).exists()) {
-						addServletXml(Path);
-					} else {
-						log.error("could not find servlet defalut configure file '" + Path
-								+ "',mabye some system function is not work at this framework");
+	public void buildServletBean(String[] packages) {
+		//将包添加到记录中
+		this.packages = ArrayUtils.megere(this.packages,packages);
+		//扫描路径
+		PackageScanner scanner = new PackageScanner();
+		scanner.addScanPath(packages);
+		scanner.doScanner(new ClassInter() {
+			@Override
+			public void find(Class<?> cls) {
+				buildServletBean(cls);
+			}
+		});
+	}
+
+	protected void buildServletBean(Class<?> cls) {
+		try {
+			logger.debug("scan class: " + cls.getName());
+			Method[] methods = cls.getMethods();
+			methodIterator: for (Method method : methods) {
+				List<ServletDispatcher> sds = PlugsFactory.getPluginsInstanceList(ServletDispatcher.class);
+				for (ServletDispatcher sd : sds) {
+					Class<? extends Annotation>[] annosType = sd.getDispatcherAnnotation();
+					for (Class<? extends Annotation> annoType : annosType) {
+						if (annosType != null && method.getAnnotation(annoType) != null)
+							if (sd.getBuilder().builder(annoType, method.getAnnotation(annoType), cls, method,
+									servletMannager))
+								continue methodIterator;
 					}
 				}
-				servletPaths.add(doc);
-			} catch (DocumentException e) {
-				log.error(e.getMessage(), e);
-				e.printStackTrace();
 			}
-		} else {
-			log.error("could not find servlet xml file at xml path : " + xmlPath);
+		} catch (Exception e) {
+			throw new MVCContextInitException("failed to build class " + cls, e);
 		}
 	}
 
-	private Document toDocument(String xmlPath) throws DocumentException {
-		SAXReader reader = new SAXReader();
-		return reader.read(xmlPath);
-	}
-
-	/**
-	 * initial servlet mapping by scan
-	 */
-	public void initByScanner() {
-		// try get Configure
-		tryGetScanPackage();
-		this.initByScanner(this.packageDirs);
-	}
-
-	private void initByScanner(String... paths) {
-			PackageScanner scanner = new PackageScanner();
-			scanner.addScanPath(paths);
-			scanner.doScanner(new ClassInter() {
-				@Override
-				public void find(Class<?> cls) {
-					try {
-						log.debug("scan class: "+cls.getName());
-						Method[] methods = cls.getMethods();
-						methodIterator: for (Method method : methods) {
-							List<ServletDispatcher> sds = PlugsFactory.getPluginsInstanceList(ServletDispatcher.class);
-							for (ServletDispatcher sd : sds) {
-								Class<? extends Annotation>[] annosType = sd.getDispatcherAnnotation();
-								for (Class<? extends Annotation> annoType : annosType) {
-									if (annosType != null && method.getAnnotation(annoType) != null)
-										if (sd.getBuilder().builder(annoType, method.getAnnotation(annoType), cls,
-												method, servletMannager))
-											continue methodIterator;
-								}
-							}
-						}
-					} catch (Exception e) {
-						log.error("An error occurs when scanning class " + cls.getName(), e);
-					}
-
-				}
-			});
-		}
-	/**
-	 * try get configure file
-	 */
-	private void tryGetScanPackage() {
-		//先从config获取扫描地址
-		ConfigValue configValue = Environment.getEnviroment().getConfigValue(Constant.MVC_CONFIG_SCANNER_TOKEN);
-		//没有的话从环境变量获取地址
-		if (configValue != null) {
-			packageDirs = tryGetScanFromConfig(configValue);
-		} else {
-			String packages = Environment.getEnviroment().getVariable(Constant.MVC_SCANNER);
-			if(packages != null) {
-				packageDirs = packages.split(",");
-			}
-		}
-		log.debug("Servlets scan package is "+Arrays.toString(packageDirs));
-	}
-
-	private String[] tryGetScanFromConfig(ConfigValue configValue) {
-		if(configValue.valueType() == ConfigValueType.STRING) 
-			return ((String)configValue.unwrapped()).split(",");
-		if(configValue.valueType() == ConfigValueType.LIST) {
+	private String[] decodePackagesFromConfig(ServerContext serverContext) {
+		ConfigValue configValue = serverContext.getConfig().getValue(Config_MVC_Constant.MVC_PACKAGES);
+		if(configValue == null)
+			return null;
+		if (configValue.valueType() == ConfigValueType.STRING)
+			return ((String) configValue.unwrapped()).split(",");
+		if (configValue.valueType() == ConfigValueType.LIST) {
 			ConfigList configList = (ConfigList) configValue;
-			return configList.toArray(new String[configList.size()]);
+			return configList.unwrapped().toArray(new String[configList.size()]);
 		}
-		throw new IllegalConfigException("the config "+Constant.MVC_CONFIG_SCANNER_TOKEN+" only STRING or LIST,but found:"+configValue.valueType());
+		throw new IllegalConfigException("the config " + Config_MVC_Constant.MVC_PACKAGES
+				+ " only STRING or LIST,but found:" + configValue.valueType());
 	}
 
+	/**
+	 * 初始化构造器
+	 */
 	public void init() {
-		this.initByScanner();
+		ServerContext serverContext = ServerContext.getContext();
+		if (serverContext.getConfig() == null)
+			return;
+		String[] packages = decodePackagesFromConfig(serverContext);
+		if(ArrayUtils.isEmpty(packages)) {
+			logger.warn("mvc package config is null");
+			return;
+		}
+		logger.info("mvc package config is " + Arrays.toString(packages));
+		buildServletBean(packages);
 	}
 }
