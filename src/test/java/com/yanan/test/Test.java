@@ -5,15 +5,15 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 
-import com.yanan.frame.plugin.annotations.Register;
-import com.yanan.frame.plugin.annotations.Service;
-import com.yanan.frame.servlets.ServletContextInit;
-import com.yanan.frame.servlets.annotations.RequestMapping;
-import com.yanan.frame.servlets.response.annotations.ResponseJson;
-import com.yanan.frame.servlets.validator.annotations.FastValidate;
-import com.yanan.frame.servlets.validator.annotations.Length;
-import com.yanan.frame.servlets.validator.annotations.Validate;
-import com.yanan.frame.plugin.PlugsFactory;
+import com.yanan.framework.plugin.annotations.Register;
+import com.yanan.framework.plugin.annotations.Service;
+import com.yanan.framework.webmvc.annotations.RequestMapping;
+import com.yanan.framework.webmvc.response.annotations.ResponseJson;
+import com.yanan.framework.webmvc.validator.annotations.FastValidate;
+import com.yanan.framework.webmvc.validator.annotations.Length;
+import com.yanan.framework.webmvc.validator.annotations.Validate;
+import com.yanan.framework.webmvc.ServletContextInit;
+import com.yanan.framework.plugin.PlugsFactory;
 
 @FastValidate
 @Validate
@@ -39,7 +39,7 @@ public class Test {
 		try {
 			init.test(null,3,init);
 			init.test("word",2,null);
-		}catch(com.yanan.frame.servlets.validator.ParameterVerificationFailed e) {
+		}catch(com.yanan.framework.webmvc.validator.ParameterVerificationFailed e) {
 			e.printStackTrace();
 			Map v = e.getValidResult();
 			System.out.println(v);

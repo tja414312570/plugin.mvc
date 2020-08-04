@@ -1,0 +1,58 @@
+###################### plugin
+plugins:[
+		## interface
+		"com.yanan.framework.webmvc.response.MethodAnnotationType",
+		"com.yanan.framework.webmvc.parameter.ParameterAnnotationType",
+		com.yanan.framework.webmvc.response.ResponseTypeSupportAnnotation,
+		## dispatcher
+		{ ##Restful调配器 @RequestMapping @GetMapping @PostMapping @DeleteMapping @RequestParam @RequestPath
+			class:com.yanan.framework.webmvc.RestfulDispatcher,
+			priority:0,
+			signlton:true,
+			attribute:RESTFUL_STYLE,
+			service:"javax.servlet.Servlet,com.yanan.framework.webmvc.ServletDispatcher"
+		},
+		## 响应工具
+		com.yanan.framework.webmvc.response.FileResponseHandler,
+		com.yanan.framework.webmvc.response.ForwardResponseHandler,
+		com.yanan.framework.webmvc.response.JsonResponseHandler,
+		com.yanan.framework.webmvc.response.RedirectResponseHandler,
+		com.yanan.framework.webmvc.response.ResponseStatusHandler,
+		## 异常响应工具
+		com.yanan.framework.webmvc.exception.ServletExceptionHandler,
+		com.yanan.framework.webmvc.exception.DefaultExceptionHandler,
+		## 参数验证工具
+		com.yanan.framework.webmvc.validator.DefaultParameterValitationHandler,
+		## 默认参数注入工具
+		com.yanan.framework.webmvc.parameter.DefaultParameterHandler,
+		## 默认参数注解类型
+		com.yanan.framework.webmvc.parameter.RestfulParameter,
+		com.yanan.framework.webmvc.session.parameter.TokenParameterHandler
+	]
+mvc:{
+	server:{
+			tomcat:[
+				{ ## 默认调配器
+					class:org.apache.catalina.webmvc.DefaultServlet,
+					priority:2,
+					signlton:true,
+					attribute:"*",
+					service:javax.servlet.Servlet
+				},
+				{ ## 默认JSP调配器
+					class:org.apache.jasper.servlet.JspServlet,
+					priority:1,
+					signlton:true,
+					attribute:".jsp",
+					service:javax.servlet.Servlet
+				},
+			]
+		},
+	response:{
+		fileResponse:{
+			pools:10,
+			buffer:4096,
+		}
+	}
+	}
+	
