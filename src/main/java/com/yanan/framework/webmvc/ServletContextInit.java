@@ -34,6 +34,7 @@ import com.yanan.utils.reflect.TypeToken;
 import com.yanan.utils.resource.ClassPathResource;
 import com.yanan.utils.resource.Resource;
 import com.yanan.utils.resource.ResourceManager;
+import com.yanan.utils.string.StringUtil;
 
 /**
  * mvc环境初始化
@@ -69,7 +70,7 @@ public class ServletContextInit implements ServletContextListener{
 			PlugsFactory.init();
 			//获取mvc配置文件路径
 			String path = ServletContextInit.class.
-					getResource("./conf/mvc.yc").getPath().replace("file:", "");
+					getResource("./conf/mvc.yc").getPath().replace(StringUtil.WINDOWS_FILE_TOKEN, "");
 			//获取资源
 			Resource resource = ResourceManager.getResource(path);
 			//获取资源解析器
