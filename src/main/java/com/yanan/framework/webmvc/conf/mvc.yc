@@ -33,7 +33,7 @@ mvc:{
 	server:{
 			tomcat:[
 				{ ## 默认调配器
-					class:org.apache.catalina.webmvc.DefaultServlet,
+					class:org.apache.catalina.servlets.DefaultServlet,
 					priority:2,
 					signlton:true,
 					attribute:"*",
