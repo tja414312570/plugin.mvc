@@ -69,8 +69,8 @@ public class ServletContextInit implements ServletContextListener{
 			//初始化Plugin
 			PlugsFactory.init();
 			//获取mvc配置文件路径
-			String path = ServletContextInit.class.
-					getResource("./conf/mvc.yc").getPath().replace(StringUtil.WINDOWS_FILE_TOKEN, "");
+			String path = ResourceManager.processPath(ServletContextInit.class.
+					getResource("./conf/mvc.yc").getPath().replace("file:", ""));
 			//获取资源
 			Resource resource = ResourceManager.getResource(path);
 			//获取资源解析器
