@@ -31,6 +31,4 @@ public interface TokenHibernateInterface {
 
 	void removeRole(String tokenId, String role);
 
-
-
 }

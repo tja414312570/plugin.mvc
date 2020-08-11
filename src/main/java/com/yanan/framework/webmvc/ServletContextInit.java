@@ -34,7 +34,6 @@ import com.yanan.utils.reflect.TypeToken;
 import com.yanan.utils.resource.ClassPathResource;
 import com.yanan.utils.resource.Resource;
 import com.yanan.utils.resource.ResourceManager;
-import com.yanan.utils.string.StringUtil;
 
 /**
  * mvc环境初始化
