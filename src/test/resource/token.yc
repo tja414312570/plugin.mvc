@@ -1,0 +1,25 @@
+###################### plugin list
+token.web."/**" = {
+	roles:"adimin,root"
+	class:com.batu.filter.AccountFilter
+	chain:"/menu/**,/app/**,/token?*,/js/**"
+	result.failed.reirect="/auth?login"
+	result.noInit.redirect="/auth?sign-up"
+}
+token.web."com.yanan.test"={}
+token.timeout:5
+token.realm:{
+	root:root123
+	admin:admin
+	}
+token.permission:[
+	"test:view"
+	"test:edit"
+	"test:delete"
+	"test:add"
+]
+token.role:{
+	admin:ref"token.permission"
+	root:${token.permission}
+	
+}

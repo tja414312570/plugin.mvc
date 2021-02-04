@@ -24,10 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.yanan.framework.webmvc.annotations.restful.ParameterType;
-import com.yanan.framework.webmvc.exception.ServletExceptionHandler;
 import com.yanan.framework.webmvc.exception.ServletRuntimeException;
 import com.yanan.framework.webmvc.parameter.ParameterHandler;
 import com.yanan.framework.webmvc.response.ResponseHandler;
+import com.yanan.framework.webmvc.response.ServletExceptionHandler;
 import com.yanan.framework.webmvc.response.annotations.ResponseType;
 import com.yanan.framework.plugin.PlugsFactory;
 import com.yanan.framework.plugin.exception.RegisterNotFound;
@@ -164,6 +164,7 @@ public class RestfulDispatcher extends HttpServlet
 			}
 			proxyObject = null;
 			parameters = null;
+		} catch (IllegalStateException e1) {
 		} catch (Throwable throwable) {
 			doException(throwable, request, response, servletBean);
 		}finally {

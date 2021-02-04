@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.yanan.framework.webmvc.session.Token;
 
 /**
  * 请求上下文<br>
@@ -20,7 +19,6 @@ public final class RequestContext {
 	private ServletBean servletBean;
 	private HttpServletRequest httpServletRequest;
 	private HttpServletResponse httpServletResponse;
-	private Token token;
 	private Thread currentThread;
 	private String contextId;
 	private static ConcurrentHashMap<String,RequestContext> requestContextMap = new ConcurrentHashMap<String,RequestContext>(16);
@@ -38,7 +36,6 @@ public final class RequestContext {
 		requestContext.setHttpServletRequest(request);
 		requestContext.setHttpServletResponse(response);
 		requestContext.setServletBean(servletBean);
-		requestContext.setToken(Token.getToken());
 		requestContext.setCurrentThread(Thread.currentThread());
 		requestContext.setContextId(UUID.randomUUID().toString());
 		threadRequestContext.set(requestContext);
@@ -83,12 +80,6 @@ public final class RequestContext {
 	}
 	void setHttpServletResponse(HttpServletResponse httpServletResponse) {
 		this.httpServletResponse = httpServletResponse;
-	}
-	public Token getToken() {
-		return token;
-	}
-	void setToken(Token token) {
-		this.token = token;
 	}
 	public Thread getCurrentThread() {
 		return currentThread;

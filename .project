@@ -3,6 +3,7 @@
 	<name>plugin.mvc</name>
 	<comment></comment>
 	<projects>
+		<project>plugin.configure</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

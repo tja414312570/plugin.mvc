@@ -19,15 +19,15 @@ plugins:[
 		com.yanan.framework.webmvc.response.RedirectResponseHandler,
 		com.yanan.framework.webmvc.response.ResponseStatusHandler,
 		## 异常响应工具
-		com.yanan.framework.webmvc.exception.ServletExceptionHandler,
-		com.yanan.framework.webmvc.exception.DefaultExceptionHandler,
+		com.yanan.framework.webmvc.response.ServletExceptionHandler,
+		com.yanan.framework.webmvc.response.DefaultExceptionHandler,
 		## 参数验证工具
 		com.yanan.framework.webmvc.validator.DefaultParameterValitationHandler,
 		## 默认参数注入工具
 		com.yanan.framework.webmvc.parameter.DefaultParameterHandler,
 		## 默认参数注解类型
 		com.yanan.framework.webmvc.parameter.RestfulParameter,
-		com.yanan.framework.webmvc.session.parameter.TokenParameterHandler
+		com.yanan.framework.token.web.TokenParameterHandler
 	]
 mvc:{
 	server:{

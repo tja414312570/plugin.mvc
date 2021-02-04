@@ -71,9 +71,9 @@
 			<version>1.2.2</version>
 		</dependency>
 		<dependency>
-		    <groupId>javax.servlet</groupId>
-		    <artifactId>javax.servlet-api</artifactId>
-		    <version>4.0.1</version>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -86,25 +86,14 @@
 			</resource>
 			<resource>
 				<directory>src/main/resource</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
 			</resource>
 		</resources>
 		<testResources>
 			<testResource>
 				<directory>src/test/resource</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-				<targetPath>target/test-class</targetPath>
 			</testResource>
 			<testResource>
-				<directory>src/main/java</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-				<targetPath>target/test-class</targetPath>
+				<directory>src/test/java</directory>
 			</testResource>
 		</testResources>
 		<plugins>
