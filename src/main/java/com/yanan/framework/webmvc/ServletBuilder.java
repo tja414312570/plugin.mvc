@@ -125,7 +125,7 @@ public class ServletBuilder {
 		String[] packages = decodePackagesFromConfig(serverContext);
 		if(ArrayUtils.isEmpty(packages)) {
 			logger.warn("mvc package config is null");
-			packages = new String[]{"classpath*:**"};
+			packages = new String[]{"classpath:**"};
 //			return;
 		}
 		logger.info("mvc package config is " + Arrays.toString(packages));
