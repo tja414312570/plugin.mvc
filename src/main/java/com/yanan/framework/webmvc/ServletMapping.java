@@ -23,14 +23,12 @@ public class ServletMapping {
 			int i1 = -1;
 			int i2 = -1;
 			int d = 0;
-//			System.out.println("========      "+o1+"  "+o2);
 			while(true){
 				i1 = getMarkIndex(o1, i1+1);
 				i2 = getMarkIndex(o2, i2+1);
 				if(i1== -1 || i2 ==-1)
 					break;
 				d = i2-i1;
-//				System.out.println(o1+"==>"+i1+"  "+o2+"==>"+ i2+"  =  "+d);
 				if(d!=0)
 					return d;
 			}
@@ -39,7 +37,6 @@ public class ServletMapping {
 			}else {
 				d = i1 - i2;
 			}
-//			System.out.println(o1+"==>"+i1+"  "+o2+"==>"+ i2+"   =  "+d);
 			return d;
 		}
 	};

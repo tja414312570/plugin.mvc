@@ -35,42 +35,54 @@ public class Token {
 	 */
 	/*******************************存储*************************/
 	public boolean container(Class<?> cls) {
+		this.refresh();
 		return this.arguments.containsKey(cls.getName());
 	}
 	public boolean container(String key){
+		this.refresh();
 		return this.arguments.containsKey(key);
 	}
 	/**
 	 * Delete all data, including persistent data
 	 */
 	public void clearAll(){
+		this.refresh();
 		this.arguments.clear();
 	}
 	public void clear(){
+		this.refresh();
 		this.arguments.clear();
 	}
 	public void set(String key, Object value) {
+		this.refresh();
 		this.arguments.put(key, value);
 	}
 	public void set(Class<?> cls, Object value) {
+		this.refresh();
 		this.arguments.put(cls.getName(), value);
 	}
 	public Object get(String key) {
+		this.refresh();
 		return arguments.get(key);
 	}
 	public void remove(String key){
+		this.refresh();
 		this.arguments.remove(key);
 	}
 	public void set(Object obj) {
+		this.refresh();
 		this.arguments.put(obj.getClass().getName(), obj);
 	}
 	public Object get(Class<?> cls) {
+		this.refresh();
 		return this.arguments.get(cls.getName());
 	}
 	public Set<Entry<String, Object>> attributeEntry() {
+		this.refresh();
 		return this.arguments.entrySet();
 	}
 	public void remove(Class<?> cls) {
+		this.refresh();
 		this.arguments.remove(cls.getName());
 	}
 	/***********************************存储结束*****************/
@@ -79,6 +91,7 @@ public class Token {
 		this.refresh();
 	}
 	public String getId() {
+		this.refresh();
 		return tokenId;
 	}
 	/**
@@ -91,6 +104,7 @@ public class Token {
 			token = new Token();
 			TokenPool.setToken(token);
 		}
+		token.refresh();
 		return token;
 	}
 	public static void delete(){
@@ -113,6 +127,7 @@ public class Token {
 	 * @return 角色集合
 	 */
 	public Set<String> getRoles() {
+		this.refresh();
 		return roleSet;
 	}
 	/**
@@ -121,6 +136,7 @@ public class Token {
 	 * @return 角色集合
 	 */
 	public String[] matchRoles(String[] roles) {
+		this.refresh();
 		List<String> rolesList = new ArrayList<String>();
 		for (String role : roles) {
 			if (roleSet.contains(role))
@@ -134,6 +150,7 @@ public class Token {
 	 * @return
 	 */
 	public boolean containerRole(String[] roles) {
+		this.refresh();
 		for (String role : roles) {
 			if(isRole(role)){
 				return true;
@@ -147,6 +164,7 @@ public class Token {
 	 * @return
 	 */
 	public boolean isRole(Class<?> role){
+		this.refresh();
 		return isRole(role.getSimpleName());
 	}
 	/**
@@ -155,6 +173,7 @@ public class Token {
 	 * @return
 	 */
 	public boolean isRole(String role) {
+		this.refresh();
 		return roleSet.contains(role);
 	}
 	/**
@@ -162,6 +181,7 @@ public class Token {
 	 * @param roles
 	 */
 	public void delRoles(Class<?>... roles){
+		this.refresh();
 		for(Class<?> role : roles){
 			this.delRole(role);
 		}
@@ -171,6 +191,7 @@ public class Token {
 	 * @param role
 	 */
 	public void delRole(Class<?> role){
+		this.refresh();
 		this.delRole(role.getSimpleName());
 	}
 	/**
@@ -178,6 +199,7 @@ public class Token {
 	 * @param roles
 	 */
 	public void delRole(String... roles){
+		this.refresh();
 		for(String role : roles){
 			this.delRole(role);
 		}
@@ -187,6 +209,7 @@ public class Token {
 	 * @param role
 	 */
 	public synchronized void delRole(String role) {
+		this.refresh();
 		roleSet.remove(role);
 	}
 	/**
@@ -194,6 +217,7 @@ public class Token {
 	 * @param roles
 	 */
 	public void addRoles(Class<?>... roles){
+		this.refresh();
 		for(Class<?> role : roles){
 			this.addRole(role);
 		}
@@ -203,6 +227,7 @@ public class Token {
 	 * @param role
 	 */
 	public void addRole(Class<?> role){
+		this.refresh();
 		this.addRole(role.getSimpleName());
 	}
 	/**
@@ -210,6 +235,7 @@ public class Token {
 	 * @param roles
 	 */
 	public void addRoles(String... roles){
+		this.refresh();
 		for(String role : roles){
 			this.addRole(role);
 		}
@@ -219,12 +245,14 @@ public class Token {
 	 * @param role
 	 */
 	public synchronized void addRole(String role) {
+		this.refresh();
 		this.roleSet.add(role);
 	}
 	/**
 	 * 删除所有角色
 	 */
 	public synchronized void delAllRole(){
+		this.refresh();
 		this.roleSet.clear();
 	}
 
@@ -244,13 +272,16 @@ public class Token {
 		return Long.toHexString(hi | (val & (hi - 1))).substring(1);
 	}
 	public long getLastuse() {
+		this.refresh();
 		return lastuse;
 	}
 	public void setLastuse(long lastuse) {
+		this.refresh();
 		this.lastuse = lastuse;
 	}
 	//请求角色
 	public void requiredRole(String role) {
+		this.refresh();
 		if(!this.roleSet.contains(role.intern())) {
 			throw new RoleAuthException("the requierd role ["+role+"] is not found");
 		}
@@ -260,11 +291,13 @@ public class Token {
 	 * @param permission 权限
 	 */
 	public void requiredPermission(String permission) {
+		this.refresh();
 		if(!this.permissionSet.contains(permission.intern())) {
 			throw new PermissionAuthException("the requierd permission ["+permission+"] is not found");
 		}
 	}
 	public Thread getRequiredThread() {
+		this.refresh();
 		return requiredThread;
 	}
 	public void refresh() {
