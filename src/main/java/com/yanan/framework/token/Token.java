@@ -304,6 +304,10 @@ public class Token {
 		return requiredThread;
 	}
 	public void refresh() {
+		int times = (int) ((System.currentTimeMillis()-getLastuseInner()));
+		if(times > TokenManager.getInstance().getTimeout()*1000){
+			destory();
+		}
 		this.lastuse = System.currentTimeMillis();
 		this.requiredThread = Thread.currentThread();
 	}
