@@ -275,6 +275,9 @@ public class Token {
 		this.refresh();
 		return lastuse;
 	}
+	long getLastuseInner() {
+		return lastuse;
+	}
 	public void setLastuse(long lastuse) {
 		this.refresh();
 		this.lastuse = lastuse;

@@ -29,7 +29,7 @@ public class TokenLifeDeamon implements Runnable{
 					tokenEntryIterator.remove();
 					continue;
 				}
-				int times = (int) ((System.currentTimeMillis()-token.getLastuse())/1000);
+				int times = (int) ((System.currentTimeMillis()-token.getLastuseInner())/1000);
 				if(times > tokenManager.getTimeout()){
 					token.destory();
 				}
