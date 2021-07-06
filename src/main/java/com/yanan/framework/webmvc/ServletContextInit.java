@@ -53,7 +53,7 @@ public class ServletContextInit implements ServletContextListener{
 		// 获取服务上下文
 		ServerContext serverContext = ServerContext.getContext();
 		//判断是否WEB环境
-		Assert.isTrue(serverContext==null || sce == null,new MVCContextInitException("None Web Server Env"));
+		Assert.isFalse(serverContext==null || sce == null,new MVCContextInitException("None Web Server Env"));
 		//将ServerContext环境设置为当前上下环境
 		serverContext.init(sce.getServletContext());
 		//打印一些信息
@@ -67,6 +67,8 @@ public class ServletContextInit implements ServletContextListener{
 		Environment.getEnviroment().executeOnlyOnce(getClass(), ()->{
 			//初始化Plugin
 			PlugsFactory.init();
+			if(PlugsFactory.getInstance().getRegisterDefinition(RestfulDispatcher.class) != null)
+				return;
 			//获取mvc配置文件路径
 			String path = ResourceManager.processPath(ServletContextInit.class.
 					getResource("./conf/mvc.yc").getPath().replace("file:", ""));
