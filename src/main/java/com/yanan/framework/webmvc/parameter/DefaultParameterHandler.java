@@ -482,7 +482,7 @@ public class DefaultParameterHandler implements ParameterHandler {
 			synchronized (this) {
 				if (this.model == null) {
 					Class<?>[] parameterType = { HttpServletRequest.class };
-					this.model = PlugsFactory.getPluginsInstanceNewByParamType(Model.class, parameterType,
+					this.model = PlugsFactory.getPluginsNewInstanceByParamType(Model.class, parameterType,
 							this.servletRequest);
 				}
 			}
