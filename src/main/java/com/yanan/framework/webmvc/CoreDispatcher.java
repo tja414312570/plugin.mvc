@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 
 import com.yanan.framework.plugin.PlugsFactory;
+import com.yanan.framework.plugin.annotations.Register;
 
 /**
  * 	CoreDispatcher 核心调配器 当请求进入服务器之后<p>
@@ -26,6 +27,7 @@ import com.yanan.framework.plugin.PlugsFactory;
  * @author yanan
  *
  */
+//@Register(register = Servlet.class)
 @WebServlet("/*")
 public class CoreDispatcher extends HttpServlet{
 	private Logger logger = org.slf4j.LoggerFactory.getLogger(CoreDispatcher.class);

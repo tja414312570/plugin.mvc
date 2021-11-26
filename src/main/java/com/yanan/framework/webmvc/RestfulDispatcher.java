@@ -30,6 +30,7 @@ import com.yanan.framework.webmvc.response.ResponseHandler;
 import com.yanan.framework.webmvc.response.ServletExceptionHandler;
 import com.yanan.framework.webmvc.response.annotations.ResponseType;
 import com.yanan.framework.plugin.PlugsFactory;
+import com.yanan.framework.plugin.annotations.Register;
 import com.yanan.framework.plugin.exception.RegisterNotFound;
 
 /**
@@ -41,6 +42,7 @@ import com.yanan.framework.plugin.exception.RegisterNotFound;
  * @author yanan
  *
  */
+@Register(register = Servlet.class)
 public class RestfulDispatcher extends HttpServlet
 		implements ServletDispatcher{
 	/**

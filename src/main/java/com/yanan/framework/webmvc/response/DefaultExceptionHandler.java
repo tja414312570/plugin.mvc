@@ -16,7 +16,7 @@ import com.yanan.framework.webmvc.validator.ParameterVerificationFailed;
 import com.yanan.framework.webmvc.RestfulDispatcher;
 import com.yanan.framework.webmvc.ServletBean;
 import com.yanan.framework.webmvc.URLSupport;
-import com.yanan.framework.webmvc.exception.PermissionAuthException;
+import com.yanan.framework.token.exception.*;
 
 /**
  * Default Servlet Exception Handler
@@ -37,14 +37,16 @@ public class DefaultExceptionHandler implements ServletExceptionHandler {
 		}
 		try {
 			PrintWriter writer = response.getWriter();
-			if(cause.getClass().equals(PermissionAuthException.class)) {
+			if(cause.getClass().equals(PermissionAuthException.class)
+					|| cause.getClass().equals(RoleAuthException.class)) {
 				response.setStatus(401);
-				writer.write("an error has occurred because not permission to execute the request resource "+URLSupport.getRelativePath(request));
+				writer.write("<h2 style='background: #d69e9e;padding: 14px;'>an error has occurred because not permission to execute the request resource "+URLSupport.getRelativePath(request)+"</h2>");
+				writer.write("<p style='text-indent: 14px;'>cause by :"+cause.getMessage());
 				writer.flush();
 				writer.close();
 			}else if(cause.getClass().equals(ParameterVerificationFailed.class)){
 				response.setStatus(403);
-				writer.write("an error has occurred because parameter verifiy faild when execute the request resource "+URLSupport.getRelativePath(request));
+				writer.write("<h4 >an error has occurred because parameter verifiy faild when execute the request resource "+URLSupport.getRelativePath(request));
 				writer.flush();
 				writer.close();
 			}else {

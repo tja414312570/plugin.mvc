@@ -50,6 +50,7 @@ public class ServletContextInit implements ServletContextListener{
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
+		
 		// 获取服务上下文
 		ServerContext serverContext = ServerContext.getContext();
 		//判断是否WEB环境
@@ -131,6 +132,7 @@ public class ServletContextInit implements ServletContextListener{
 	private void loggerDispatcherInfo() {
 		//获取所有注册的调配器，因为调配器都实现了Servlet接口
 		Plugin plugin = PlugsFactory.getPlugin(Servlet.class);
+		Assert.isNotNull(plugin, "not found servert environment");
 		List<RegisterDefinition> regList = plugin.getRegisterList();
 		logger.info("Web server dispatcher num:"+regList.size());
 		logger.info("dispatcher type\tdispatcher priority\tdispatcher class");
